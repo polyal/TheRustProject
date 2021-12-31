@@ -1,4 +1,5 @@
 // https://stevedonovan.github.io/rust-gentle-intro/readme.html
+// https://stevedonovan.github.io/rust-gentle-intro/1-basics.html
 
 // #[allow(dead_code)]
 // supresses "warning: function is never used: '' "
@@ -550,8 +551,171 @@ fn more_egs()
 }
 
 /*** Interlude: Getting Command Line Arguments ***/
+#[allow(dead_code)]
+fn arg_eg() 
+{
+    for arg in std::env::args() 
+    {
+        println!("'{}'", arg);
+    }
+
+    // skip program name
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.len() > 0 
+    { // we have args!
+        println!("We have command line {} argument(s)", args.len());
+    }
+
+    let first = std::env::args().nth(1).expect("please supply an argument");
+    let n: i32 = first.parse().expect("not an integer!");
+
+    println!("First command line {}", n);
+}
+
+/*** Matching ***/
+#[allow(dead_code)]
+fn matching_eg() 
+{
+    let multilingual = "Hi! ¡Hola! привет!";
+    match multilingual.find('п') 
+    {
+        Some(idx) => 
+        {
+            let hi = &multilingual[idx..];
+            println!("Russian hi {}", hi);
+        },
+        None => println!("couldn't find the greeting, Товарищ")
+    };
+    
+    // or
+
+    if let Some(idx) = multilingual.find('п') 
+    {
+        println!("Russian hi {}", &multilingual[idx..]);
+    }
+}
+
+#[allow(dead_code)]
+fn matching_case_eg() 
+{
+    let n = 5;
+    let text = match n 
+    {
+        0 => "zero",
+        1 => "one",
+        2 => "two",
+        _ => "many",  // C default
+    };
+    println!("{} == {}", n, text);
+
+    let text = match n 
+    {
+        0..=3 => "small",
+        4..=6 => "medium",
+        _ => "large",
+    };
+     println!("{} == {}", n, text);
+}
+
+/*** Reading from Files ***/
+use std::env;
+use std::fs::File;
+use std::io::Read;
+
+#[allow(dead_code)]
+fn file_reading() 
+{
+    let first = env::args().nth(1).expect("please supply a filename");
+
+    let mut file = File::open(&first).expect("can't open the file");
+
+    let mut text = String::new();
+    file.read_to_string(&mut text).expect("can't read the file");
+
+    println!("file had {} bytes", text.len());
+
+}
+
+fn good_or_bad(good: bool) -> Result<i32,String> 
+{
+    if good 
+    {
+        Ok(42)
+    } 
+    else 
+    {
+        Err("bad".to_string())
+    }
+}
+
+#[allow(dead_code)]
+fn result_eg() 
+{
+    println!("{:?}",good_or_bad(true));
+    //Ok(42)
+    println!("{:?}",good_or_bad(false));
+    //Err("bad")
+
+    match good_or_bad(true) 
+    {
+        Ok(n) => println!("Cool, I got {}",n),
+        Err(e) => println!("Huh, I just got {}",e)
+    }
+    // Cool, I got 42
+
+}
+
+// use std::env;
+// use std::fs::File;
+// use std::io::Read;
+use std::io;
+
+#[allow(dead_code)]
+fn read_to_string(filename: &str) -> Result<String,io::Error> 
+{
+    let mut file = match File::open(&filename) 
+    {
+        Ok(f) => f,
+        Err(e) => return Err(e),
+    };
+    let mut text = String::new();
+    match file.read_to_string(&mut text) 
+    {
+        Ok(_) => Ok(text),
+        Err(e) => Err(e),
+    }
+}
+
+// does the same as the above function
+#[allow(dead_code)]
+fn read_to_string_auto_error_handling(filename: &str) -> io::Result<String> 
+{
+    let mut file = File::open(&filename)?;  // '?' tells it to return on error
+    let mut text = String::new();
+    file.read_to_string(&mut text)?;
+    Ok(text)
+}
+
+/*#[allow(dead_code)]
+fn read_to_string_auto_error_handling_old(filename: &str) -> io::Result<String> 
+{
+    let mut file = try!(File::open(&filename));
+    let mut text = String::new();
+    try!(file.read_to_string(&mut text));
+    Ok(text)
+}*/
+
+#[allow(dead_code)]
+fn file_reading_2() 
+{
+    let file = env::args().nth(1).expect("please supply a filename");
+
+    let text = read_to_string_auto_error_handling(&file).expect("bad file man!");
+
+    println!("file had {} bytes", text.len());
+}
 
 fn main() 
 {
-	more_egs();
+	file_reading_2();
 }
