@@ -379,9 +379,95 @@ fn fmt_eg()
 }
 
 /*** Example: iterator over floating-point range ***/
+struct FRange
+{
+    val: f64,
+    end: f64,
+    incr: f64
+}
 
+fn range(x1: f64, x2: f64, skip: f64) -> FRange
+{
+    FRange {val: x1, end: x2, incr: skip}
+}
+
+impl Iterator for FRange 
+{
+    type Item = f64;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let res = self.val;
+        if res >= self.end
+        {
+            None
+        }
+        else
+        {
+            self.val += self.incr;
+            Some(res)
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn iterator_trait_eg()
+{
+    for x in range(0.0, 1.0, 0.1)
+    {
+        println!("{:.1}", x);
+    }
+}
+
+// without ':1' result is going to be messy because some decimals cannot be represented well
+/***********************************
+0                          vs    0.0
+0.1                              0.1
+0.2                              0.2
+0.30000000000000004              0.3
+0.4                              0.4
+0.5                              0.5 
+0.6                              0.6
+0.7                              0.7
+0.7999999999999999               0.8
+0.8999999999999999               0.9
+0.9999999999999999               1.0
+***********************************/
+
+/*** Generic Functions ***/
+// print out any type that implements 'Debug'
+fn dump_t<T> (value: &T)
+where T: std::fmt::Debug
+{
+    println!("value is {:?}", value);
+}
+
+#[allow(dead_code)]
+fn generic_eg()
+{
+    let n = 42;
+    dump_t(&n);
+}
+
+// These functions are called monomorphic, in constrast to polymorphic. The body of 
+// the function is compiled separately for each unique type. With polymorphic functions, 
+// the same machine code works with each matching type, dynamically dispatching the correct method.
+fn sqr<T> (x: T) -> T::Output
+where T: std::ops::Mul + Copy
+{
+    x*x
+}
+
+fn generic_eg2()
+{
+    let num = 10.0;
+    let res = sqr(num);
+    println!("{} * {} = {}", num, num, res);
+}
+
+/*** Simple Enums ***/
 
 fn main() 
 {
-    fmt_eg();
+    generic_eg2();
 }
