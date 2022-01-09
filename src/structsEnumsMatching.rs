@@ -458,6 +458,7 @@ where T: std::ops::Mul + Copy
     x*x
 }
 
+#[allow(dead_code)]
 fn generic_eg2()
 {
     let num = 10.0;
@@ -466,8 +467,94 @@ fn generic_eg2()
 }
 
 /*** Simple Enums ***/
+#[derive(Debug)]
+enum Direction
+{
+    Up,
+    Down,
+    Left,
+    Right
+}
+
+impl Direction
+{
+    fn as_str(&self) -> &'static str
+    {
+        match *self
+        {
+            Direction::Up => "Up",
+            Direction::Down => "Down",
+            Direction::Left => "Left",
+            Direction::Right => "Right"
+        }
+    }
+
+    fn next(&self) -> Direction
+    {
+        use Direction::*;
+        match *self
+        {
+            Up => Right,
+            Right => Down,
+            Down => Left,
+            Left => Up
+        }
+    }
+}
+
+#[allow(dead_code)]
+fn enum_eg()
+{
+    let start = Direction::Up;
+    let mut d = start;
+    for _ in 0..8
+    {
+        println!("d {:?} {}", d, d.as_str());
+        d = d.next();
+    }
+}
+
+// allows the use of '<', '!='...
+#[derive(PartialEq, PartialOrd)]
+enum Speed
+{
+    Slow = 10,
+    Medium = 20,
+    Fast = 50
+}
+
+#[allow(dead_code)]
+fn enum_eg2()
+{
+    let s = Speed::Slow;
+    let speed = s as u32;
+    println!("speed {}", speed);
+
+    if Speed::Medium > Speed::Fast
+    {
+        println!("Medium is Faster than Fast");
+    }
+}
+
+#[derive(PartialEq, PartialOrd)]
+enum Difficulty
+{
+    Easy = 1,
+    Medium,
+    Hard
+}
+
+#[allow(dead_code)]
+fn enum_eg3()
+{
+    let easy = Difficulty::Easy as u32;
+    let medium = Difficulty::Medium as u32;
+    let hard = Difficulty::Hard as u32;
+
+    println!("Easy {} Medum {} Hard {}", easy, medium, hard);
+}
 
 fn main() 
 {
-    generic_eg2();
+    enum_eg3();
 }
