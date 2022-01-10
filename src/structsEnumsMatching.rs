@@ -554,7 +554,102 @@ fn enum_eg3()
     println!("Easy {} Medum {} Hard {}", easy, medium, hard);
 }
 
+/*** Enums in their Full Glory ***/
+// this example uses the enum as a c style union.
+// the enum can only hold one of the values at a time and will
+// be the size of the largest variant
+#[derive(Debug)]
+enum Value
+{
+    Number(f64),
+    Str(String),
+    Bool(bool)
+}
+
+fn eat_and_dump(v: Value)
+{
+    use Value::*;
+    match v
+    {
+        Number(n) => println!("number is {}", n),
+        Str(s) => println!("string is {}", s),
+        Bool(b) => println!("boolean is {}", b),
+    }
+}
+
+// ref is required for 'String' because 'String' doest have 
+// copy implemented
+// So I believe we are derefrencing it with the '*' and later
+// creating a ref to it with the 'ref' keyword
+// Str(s) is really Str(s: String) and we need Str(s: &String)
+// 'ref' solves this issue for us
+fn dump_val(v: &Value)
+{
+    use Value::*;
+    match *v
+    {
+        Number(n) => println!("number is {}", n),
+        Str(ref s) => println!("string is '{}'", s),
+        Bool(b) => println!("boolean is {}", b)
+    }
+}
+
+#[allow(dead_code)]
+fn enum_eg4()
+{
+    use Value::*;
+    let n = Number(2.3);
+    let s = Str("hello".to_string());
+    let b = Bool(true);
+
+    println!("n {:?} s {:?} b {:?}", n, s, b);
+    
+    dump_val(&n);
+    dump_val(&s);
+    dump_val(&b);
+
+    eat_and_dump(n);
+    eat_and_dump(s);
+    eat_and_dump(b);
+}
+
+impl Value
+{
+    fn to_string(self) ->Option<String>
+    {
+        match self
+        {
+            Value::Str(s) => Some(s),
+            _ => None
+        }
+    }
+
+    // equivalent
+    /********************************
+    fn to_str(self) -> Option<String> 
+    {
+        if let Value::Str(s) = self {
+            Some(s)
+        } else {
+            None
+    }
+    ********************************/
+}
+
+#[allow(dead_code)]
+fn enum_eg5()
+{
+    use Value::*;
+    let n = Number(2.3);
+    let s = Str("hello".to_string());
+    let b = Bool(true);
+
+    println!("n? {:?} s? {:?} b? {:?}", n.to_string(), s.to_string(), b.to_string());
+}
+
+/*** More about Matching ***/
+
 fn main() 
 {
-    enum_eg3();
+    enum_eg5();
 }
